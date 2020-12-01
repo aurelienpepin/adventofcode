@@ -39,7 +39,7 @@ func main() {
 func part1(numbers []int) {
 	numberSet := make(map[int]bool)
 
-	for _, number:= range numbers {
+	for _, number := range numbers {
 		_, ok := numberSet[2020 - number]
 		if ok {
 			fmt.Println(number, "and", 2020 - number, "give", number * (2020 - number))
@@ -51,5 +51,21 @@ func part1(numbers []int) {
 }
 
 func part2(numbers []int) {
+	numberSet := make(map[int]bool)
 
+	for _, number := range numbers {
+		numberSet[number] = true
+	}
+
+	for i := 0; i < len(numbers); i++ {
+		for j := i + 1; j < len(numbers); j++ {
+			diff := 2020 - numbers[i] - numbers[j]
+			_, ok := numberSet[diff]
+
+			if ok {
+				fmt.Println(numbers[i], "and", numbers[j], "and", diff, "give", numbers[i] * numbers[j] * diff)
+				return
+			}
+		}
+	}
 }
