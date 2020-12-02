@@ -10,9 +10,9 @@ import (
 )
 
 type Policy struct {
-	min int
-	max int
-	target string
+	key1     int
+	key2     int
+	target   string
 	password string
 }
 
@@ -42,8 +42,8 @@ func main() {
 		}
 
 		policies = append(policies, Policy{
-			min:      minRule,
-			max:      maxRule,
+			key1:     minRule,
+			key2:     maxRule,
 			target:   rules[2],
 			password: content[1],
 		})
@@ -51,7 +51,8 @@ func main() {
 
 	score := 0
 	for _, p := range policies {
-		if p.isValid() {
+		// if p.isValid() {
+		if p.isValid2() {
 			score++
 		}
 	}
@@ -61,7 +62,13 @@ func main() {
 
 func (policy Policy) isValid() bool {
 	count := strings.Count(policy.password, policy.target)
-	return policy.min <= count && count <= policy.max
+	return policy.key1 <= count && count <= policy.key2
+}
+
+func (policy Policy) isValid2() bool {
+	r1 := string(policy.password[policy.key1-1]) == policy.target
+	r2 := string(policy.password[policy.key2-1]) == policy.target
+	return r1 != r2 // xor
 }
 
 func rulesSplitter(r rune) bool {
