@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -42,12 +43,12 @@ var mandatoryFields = []string{"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid"}
 
 func isValid(passport string) bool {
 	fields := strings.FieldsFunc(passport, splitter)
-	//index := make(map[string]string)
+	index := make(map[string]string)
 	set := make(map[string]bool)
 
 	for _, field := range fields {
 		parts := strings.Split(field, ":")
-		//index[parts[0]] = parts[1]
+		index[parts[0]] = parts[1]
 		set[parts[0]] = true
 	}
 
@@ -56,7 +57,7 @@ func isValid(passport string) bool {
 	}
 
 	for _, field := range mandatoryFields {
-		if _, ok := set[field]; !ok {
+		if value, ok := index[field]; !ok || !isConform(field, value) {
 			return false
 		}
 	}
@@ -65,6 +66,74 @@ func isValid(passport string) bool {
 		return false
 	}
 	return true
+}
+
+func isConform(key string, value string) bool {
+	switch key {
+	case "byr":
+		return isInInterval(value, 1920, 2002)
+	case "iyr":
+		return isInInterval(value, 2010, 2020)
+	case "eyr":
+		return isInInterval(value, 2020, 2030)
+	case "hgt":
+		return isHeight(value)
+	case "hcl":
+		return isColor(value)
+	case "ecl":
+		return stringInSlice(value, []string{"amb", "blu", "brn", "gry", "grn", "hzl", "oth"})
+	case "pid":
+		_, err := strconv.Atoi(value)
+		return len(value) == 9 && err == nil
+	default:
+		return true
+	}
+}
+
+func isInInterval(value string, min int, max int) bool {
+	v, err := strconv.Atoi(value)
+	return err == nil && v >= min && v <= max
+}
+
+func isColor(value string) bool {
+	if len(value) != 7 {
+		return false
+	}
+
+	if string(value[0]) != "#" {
+		return false
+	}
+
+	for i := 1; i < len(value); i++ {
+		if !stringInSlice(string(value[i]), []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"}) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func isHeight(value string) bool {
+	if len(value) < 3 {
+		return false
+	}
+
+	unit := value[len(value) - 2:]
+	if unit == "cm" {
+		return isInInterval(value[:len(value) - 2], 150, 193)
+	} else if unit == "in" {
+		return isInInterval(value[:len(value) - 2], 59, 76)
+	}
+	return false
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 func splitter(r rune) bool {
