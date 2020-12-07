@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	fmt.Println(day7.Part1())
+	fmt.Println(day7.Part2())
 }
 
 // If `force` is false, the input file won't be downloaded if a local file

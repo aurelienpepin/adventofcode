@@ -1,7 +1,6 @@
 package day7
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"strconv"
@@ -62,8 +61,35 @@ func Part1() int {
 		}
 	}
 
-	fmt.Println(g)
 	return len(g.AllNodesReachableFrom("shiny gold"))
+}
+
+func Part2() int {
+	bagMap := make(map[string]Bag)
+	bagValues := make(map[string]int)
+	inputLines := common()
+
+	for _, line := range inputLines {
+		bag := extractBag(line)
+		bagMap[bag.name] = bag
+	}
+
+	return valueOf(bagMap["shiny gold"], bagMap, bagValues) - 1
+}
+
+func valueOf(bag Bag, bagMap map[string]Bag, bagValues map[string]int) int {
+	total := 0
+	if v, ok := bagValues[bag.name]; ok {
+		return v + 1
+	}
+
+
+	for _, innerBag := range bag.innerBags {
+		total += innerBag.quantity * valueOf(bagMap[innerBag.name], bagMap, bagValues)
+	}
+
+	bagValues[bag.name] = total
+	return total + 1
 }
 
 func extractBag(input string) Bag {
