@@ -40,3 +40,23 @@ func Part1() int {
 	differences[3]++
 	return differences[1] * differences[3]
 }
+
+func Part2() uint64 {
+	adapters := common()
+	sort.Ints(adapters)
+
+	join := make([]uint64, len(adapters))
+	join[0] = 1
+
+	for i := 1; i < len(adapters); i++ {
+		if adapters[i] <= 3 {
+			join[i]++
+		}
+
+		for j := i - 1; j >= 0 && adapters[i] - adapters[j] <= 3; j-- {
+			join[i] += join[j]
+		}
+	}
+
+	return join[len(adapters) - 1]
+}
