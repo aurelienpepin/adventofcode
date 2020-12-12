@@ -21,6 +21,7 @@ type Waypoint struct {
 
 type Command interface {
 	apply(ship *Ship)
+	applyRelative(ship *Ship, waypoint *Waypoint)
 }
 
 type North struct {
@@ -98,11 +99,13 @@ func Part2() int {
 	ship := Ship{}
 	waypoint := Waypoint { ship.x + 10, ship.y + 1 }
 	commands := common()
-}
 
-/**
-	ALL COMMANDS
- */
+	for _, command := range commands {
+		command.applyRelative(&ship, &waypoint)
+	}
+
+	return int(math.Abs(float64(ship.x)) + math.Abs(float64(ship.y)))
+}
 
 func (north North) apply(ship *Ship) {
 	ship.y += north.units
@@ -127,6 +130,10 @@ func (left Left) apply(ship *Ship) {
 	}
 }
 
+/**
+	ALL COMMANDS
+ */
+
 func (right Right) apply(ship *Ship) {
 	ship.direction = (ship.direction - right.units) % 360
 	if ship.direction < 0 {
@@ -142,4 +149,46 @@ func (forward Forward) apply(ship *Ship) {
 	case 270:	ship.y -= forward.units
 	default: panic("unknown direction: " + strconv.Itoa(ship.direction))
 	}
+}
+
+func (north North) applyRelative(ship *Ship, waypoint *Waypoint) {
+	waypoint.y += north.units
+}
+
+func (south South) applyRelative(ship *Ship, waypoint *Waypoint) {
+	waypoint.y -= south.units
+}
+
+func (east East) applyRelative(ship *Ship, waypoint *Waypoint) {
+	waypoint.x += east.units
+}
+
+func (west West) applyRelative(ship *Ship, waypoint *Waypoint) {
+	waypoint.x -= west.units
+}
+
+func (left Left) applyRelative(ship *Ship, waypoint *Waypoint) {
+	for i := 0; i < left.units / 90; i++ {
+		rotateCounterclockwise(ship, waypoint)
+	}
+}
+
+func (right Right) applyRelative(ship *Ship, waypoint *Waypoint) {
+	for i := 0; i < 3 * (right.units / 90); i++ {
+		rotateCounterclockwise(ship, waypoint)
+	}
+}
+
+func (forward Forward) applyRelative(ship *Ship, waypoint *Waypoint) {
+	deltaX, deltaY := waypoint.x - ship.x, waypoint.y - ship.y
+	ship.x += forward.units * deltaX
+	ship.y += forward.units * deltaY
+	waypoint.x = ship.x + deltaX
+	waypoint.y = ship.y + deltaY
+}
+
+func rotateCounterclockwise(ship *Ship, waypoint *Waypoint) {
+	deltaX, deltaY := waypoint.x - ship.x, waypoint.y - ship.y
+	waypoint.x = -deltaY + ship.x
+	waypoint.y = deltaX + ship.y
 }
