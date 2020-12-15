@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-type GameData struct {
+type gameData struct {
 	lastTurn		int
 	lastLastTurn	int
 }
@@ -30,13 +30,13 @@ func common() []int {
 	return numbers
 }
 
-func Part1() int {
+func playTheGameUntil(maxTurn int) int {
 	numbers, turn := common(), 1
-	stats := make(map[int]GameData)
+	stats := make(map[int]gameData)
 	lastSpoken := numbers[len(numbers) - 1]
 
 	for _, number := range numbers {
-		stats[number] = GameData{turn, -1}
+		stats[number] = gameData{turn, -1}
 		turn++
 	}
 
@@ -48,7 +48,7 @@ func Part1() int {
 		}
 
 		update(lastSpoken, turn, stats)
-		if turn == 2020 {
+		if turn == maxTurn {
 			return lastSpoken
 		}
 
@@ -57,18 +57,26 @@ func Part1() int {
 	}
 }
 
-func wasFirstTime(lastSpoken int, stats map[int]GameData) bool {
-	if data, ok := stats[lastSpoken]; ok {
-		return data.lastLastTurn == -1
-	} else {
-		return false
-	}
+func Part1() int {
+	return playTheGameUntil(2020)
 }
 
-func update(lastSpoken int, turn int, stats map[int]GameData) {
-	if _, ok := stats[lastSpoken]; ok {
-		stats[lastSpoken] = GameData{turn, stats[lastSpoken].lastTurn}
+func Part2() int {
+	return playTheGameUntil(30000000)
+}
+
+func wasFirstTime(lastSpoken int, stats map[int]gameData) bool {
+	if data, ok := stats[lastSpoken]; ok {
+		return data.lastLastTurn == -1
+	}
+
+	return false
+}
+
+func update(lastSpoken int, turn int, stats map[int]gameData) {
+	if data, ok := stats[lastSpoken]; ok {
+		stats[lastSpoken] = gameData{turn, data.lastTurn}
 	} else {
-		stats[lastSpoken] = GameData{turn, -1}
+		stats[lastSpoken] = gameData{turn, -1}
 	}
 }
