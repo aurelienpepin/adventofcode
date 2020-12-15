@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/aurelienpepin/adventofcode/2020/day14"
+	"github.com/aurelienpepin/adventofcode/2020/day15"
 )
 
 const (
@@ -12,7 +12,7 @@ const (
 )
 
 func main() {
-	fmt.Println(day14.Part2())
+	fmt.Println(day15.Part1())
 }
 
 // If `force` is false, the input file won't be downloaded if a local file
