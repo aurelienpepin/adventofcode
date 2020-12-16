@@ -14,7 +14,7 @@ const (
 
 func main() {
 	start := time.Now()
-	fmt.Println(day16.Part1())
+	fmt.Println(day16.Part2())
 	fmt.Printf("Time elapsed: %s\n", time.Since(start))
 }
 
