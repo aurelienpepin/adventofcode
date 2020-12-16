@@ -2,7 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/aurelienpepin/adventofcode/2020/day15"
+	"github.com/aurelienpepin/adventofcode/2020/day16"
+	"time"
 )
 
 const (
@@ -12,7 +13,9 @@ const (
 )
 
 func main() {
-	fmt.Println(day15.Part2())
+	start := time.Now()
+	fmt.Println(day16.Part1())
+	fmt.Printf("Time elapsed: %s\n", time.Since(start))
 }
 
 // If `force` is false, the input file won't be downloaded if a local file
