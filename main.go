@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/aurelienpepin/adventofcode/2020/day17"
+	"github.com/aurelienpepin/adventofcode/2020/day18"
 	"time"
 )
 
@@ -14,7 +14,7 @@ const (
 
 func main() {
 	start := time.Now()
-	fmt.Println(day17.Part2())
+	fmt.Println(day18.Part1())
 	fmt.Printf("Time elapsed: %s\n", time.Since(start))
 }
 
