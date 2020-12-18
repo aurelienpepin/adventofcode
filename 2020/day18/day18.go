@@ -29,7 +29,7 @@ type ParenthExpression struct {
 	expr		Expression
 }
 
-func common() []Expression {
+func common(parsingFunction func(string) Expression) []Expression {
 	content, err := ioutil.ReadFile("2020/inputs/day18")
 	if err != nil {
 		log.Fatal(err)
@@ -37,7 +37,7 @@ func common() []Expression {
 
 	var expressions []Expression
 	for _, line := range strings.Split(string(content), "\n") {
-		expressions = append(expressions, parse(line))
+		expressions = append(expressions, parsingFunction(line))
 	}
 
 	return expressions
@@ -45,10 +45,21 @@ func common() []Expression {
 
 func Part1() int {
 	sum := 0
-	expressions := common()
+	expressions := common(parse)
 
 	for _, expression := range expressions {
 		sum += expression.evaluate()
+	}
+
+	return sum
+}
+
+func Part2() int64 {
+	sum := int64(0)
+	expressions := common(parse2)
+
+	for _, expression := range expressions {
+		sum += int64(expression.evaluate())
 	}
 
 	return sum
@@ -83,6 +94,60 @@ func parse(formula string) Expression {
 			}
 		}
 	}
+}
+
+func parse2(formula string) Expression {
+	// Modify the input formula by surrounding all + with ()
+	i := 0
+
+	for i != len(formula) {
+		if formula[i] == '+' {
+			formula = surround(formula, i)
+			i++
+		}
+
+		i++
+	}
+
+	return parse(formula)
+}
+
+func surround(formula string, plusIndex int) string {
+	// Left part
+	if isDigit(rune(formula[plusIndex-2])) {
+		formula = formula[:plusIndex-2] + "(" + formula[plusIndex-2:]
+	} else {
+		open := matchParenthesis(formula[:plusIndex-1])
+		formula = formula[:open] + "(" + formula[open:]
+	}
+
+	// Right part
+	plusIndex++
+	if isDigit(rune(formula[plusIndex+2])) {
+		formula = formula[:plusIndex+3] + ")" + formula[plusIndex+3:]
+	} else {
+		closed := matchParenthesisRight(formula[plusIndex + 2:])
+		// fmt.Println(closed, "/", formula, "/", formula[plusIndex + 2:], "/")
+		formula = formula[:plusIndex + 2+closed] + ")" + formula[plusIndex + 2+closed:]
+	}
+	return formula
+}
+
+func matchParenthesisRight(formula string) int {
+	counter := 0
+	for i := 0; i < len(formula); i++ {
+		if formula[i] == ')' {
+			counter--
+		} else if formula[i] == '(' {
+			counter++
+		}
+
+		if counter == 0 {
+			return i
+		}
+	}
+
+	panic("no matching parenthesis right in:" + formula)
 }
 
 func matchParenthesis(formula string) int {
