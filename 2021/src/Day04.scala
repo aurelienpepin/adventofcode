@@ -57,6 +57,23 @@ object Day04 extends App {
     })
   }
 
+  def solve2(draw: Array[Int], boards: Array[Board]): Unit = {
+    var remainingBoards = boards
+
+    for (d <- draw) {
+      remainingBoards = remainingBoards
+        .map(board => (board, board.draw(d)))
+        .flatMap((b, v) => {
+          if (v > 0) {
+            println(v)
+            None
+          } else {
+            Some(b)
+          }
+        })
+    }
+  }
+
   val lines = scala.io.Source
     .fromFile("inputs/day04")
     .mkString
@@ -72,5 +89,5 @@ object Day04 extends App {
         .map(new Board(_))
     )
 
-  println(solve(draw, boards))
+  println(solve2(draw, boards))
 }
