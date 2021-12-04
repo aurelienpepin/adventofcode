@@ -12,7 +12,7 @@ object Day04 extends App {
           numbers.zipWithIndex.flatMap(row =>
             row._1.zipWithIndex
               .map((_, row._2))
-              .map(t => (t._1._1 -> (t._1._2, t._2)))
+              .map((vi, j) => (vi._1 -> (vi._2, j)))
           )
         ),
         Array.fill(numbers.length) { 0 },
@@ -47,22 +47,22 @@ object Day04 extends App {
     }
   }
 
-  def solve(draw: Array[Int], boards: Array[Board]): Int = {
-    draw.foldLeft(0)((acc, next) => {
-      if (acc > 0) {
-        acc
+  def solve(draws: Array[Int], boards: Array[Board]): Int = {
+    draws.foldLeft(0)((bestScore, draw) => {
+      if (bestScore > 0) {
+        bestScore // keep the best score
       } else {
-        boards.map(_.draw(next)).max
+        boards.map(_.draw(draw)).max
       }
     })
   }
 
-  def solve2(draw: Array[Int], boards: Array[Board]): Unit = {
+  def solve2(draws: Array[Int], boards: Array[Board]): Unit = {
     var remainingBoards = boards
 
-    for (d <- draw) {
+    for (draw <- draws) {
       remainingBoards = remainingBoards
-        .map(board => (board, board.draw(d)))
+        .map(board => (board, board.draw(draw)))
         .flatMap((b, v) => {
           if (v > 0) {
             println(v)
@@ -79,7 +79,7 @@ object Day04 extends App {
     .mkString
     .split("\n\n")
 
-  val (draw, boards): (Array[Int], Array[Board]) =
+  val (draws, boards): (Array[Int], Array[Board]) =
     (
       lines.head.split(',').map(_.toInt),
       lines.tail
@@ -89,5 +89,5 @@ object Day04 extends App {
         .map(new Board(_))
     )
 
-  println(solve2(draw, boards))
+  println(solve2(draws, boards))
 }
