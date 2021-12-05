@@ -7,8 +7,13 @@ object Day05 extends App {
         ((p1.y min p2.y) to (p1.y max p2.y)).map(new Point(p1.x, _))
       } else if (p1.y == p2.y) { // vertical
         ((p1.x min p2.x) to (p1.x max p2.x)).map(new Point(_, p1.y))
-      } else { // diagonal, not available
-        Array.empty[Point]
+      } else { // diagonal
+        (0 to (p1.x max p2.x) - (p1.x min p2.x)).map(i =>
+          new Point(
+            p1.x + i * (if (p1.x < p2.x) 1 else -1),
+            p1.y + i * (if (p1.y < p2.y) 1 else -1)
+          )
+        )
       }
     }
   }
