@@ -34,7 +34,7 @@ object Day10 extends App {
 
     var totalScore: BigInt = 0
     while (!stack.isEmpty) {
-      totalScore = totalScore * 5 + score2(matchingReverseCharacter(stack.head))
+      totalScore = totalScore * 5 + score2(stack.head)
       stack.pop()
     }
 
@@ -49,15 +49,8 @@ object Day10 extends App {
       case ']' => '['
       case '>' => '<'
     }
-  var matchingReverseCharacter = (c: Char) =>
-    c match {
-      case '(' => ')'
-      case '{' => '}'
-      case '[' => ']'
-      case '<' => '>'
-    }
   val score = Map((')' -> 3), (']' -> 57), ('}' -> 1197), ('>' -> 25137))
-  val score2 = Map((')' -> 1), (']' -> 2), ('}' -> 3), ('>' -> 4))
+  val score2 = Map(('(' -> 1), ('[' -> 2), ('{' -> 3), ('<' -> 4))
   val input = scala.io.Source.fromFile("inputs/day10").mkString.split('\n').map(_.strip)
 
   // println(input.map(solve(_)).sum)
