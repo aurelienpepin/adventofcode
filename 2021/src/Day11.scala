@@ -10,11 +10,10 @@ object Day11 extends App {
     }
 
     def neighbours(point: (Int, Int)): Array[(Int, Int)] = {
+      val (x, y) = point
       val get: (Int, Int) => Option[(Int, Int)] = (x, y) =>
         if (x < 0 || x == grid.length || y < 0 || y == grid(x).length) Option.empty else Some((x, y))
 
-      val x = point._1
-      val y = point._2
       Array(
         (x - 1, y),
         (x + 1, y),
@@ -55,13 +54,13 @@ object Day11 extends App {
                 flashables.enqueue((x, y))
             } else {
               if (!haveFlashed.contains((x, y)))
-                grid(x)(y) += 1 //= Math.min(grid(x)(y) + 1, 9)
+                grid(x)(y) += 1
             }
           }
         }
       }
 
-      (haveFlashed.size, allPoints().filterNot(_ == 0).isEmpty)
+      (haveFlashed.size, allPoints().filterNot((coords) => grid(coords._1)(coords._2) == 0).isEmpty)
     }
 
     override def toString(): String = {
@@ -77,8 +76,19 @@ object Day11 extends App {
     flashes
   }
 
+  def solve2(grid: Grid): Int = {
+    var steps = 0
+    while
+      steps += 1
+      var (_, isZero) = grid.mkStep()
+      !isZero
+    do ()
+    steps
+  }
+
   val input = scala.io.Source.fromFile("inputs/day11").mkString.split('\n').map(_.strip.map(_.asDigit).toArray)
   var grid = new Grid(input)
 
-  println(solve(grid, 100))
+  // println(solve(grid, 100))
+  println(solve2(grid))
 }
