@@ -15,51 +15,34 @@ object Day12 extends App {
       adj(b) += a
     }
 
-    def isVisitableOnce(v: String) = Set("start").contains(v) || v.filterNot(_.isLower).isEmpty
+    def isVisitableOnce(v: String) = v.filterNot(_.isLower).isEmpty
 
-    def bfs(source: String): Int = {
-      val visited = mutable.Set.empty[String]
-      val pathsTo = mutable.Map((source -> 1))
-
-      val queue = mutable.Queue.empty[String]
-      queue.enqueue(source)
-
-      while (!queue.isEmpty) {
-        println(queue)
-        val v = queue.dequeue()
-        pathsTo(v) = pathsTo.getOrElseUpdate(v, 0) + 1
-
-        if (isVisitableOnce(v))
-          visited.add(v)
-
-        for (u <- adj(v)) {
-          if (!visited.contains(u))
-            queue.enqueue(u)
-        }
-      }
-
-      pathsTo("end")
-    }
-
-    def count(s: String, visited: mutable.Set[String], currentList: ListBuffer[String]): Unit = {
+    def count(s: String, visited: mutable.Map[String, Int], currentList: ListBuffer[String]): Int = {
       if (s == "end") {
-        println(currentList.mkString(","))
+        1
       } else {
         if (isVisitableOnce(s))
-          visited.add(s)
+          visited(s) = Math.min(visited.getOrElseUpdate(s, 0) + 1, 2)
 
+        var allPaths = 0
         for (t <- adj(s)) {
-          if (!visited.contains(t)) {
+          if (
+            t != "start" && (!visited
+              .contains(t) || visited(t) == 0 || (visited(t) == 1 && currentList
+              .filter(o => visited.getOrElseUpdate(o, 0) == 2)
+              .isEmpty))
+          ) {
             currentList.append(t)
-            count(t, visited, currentList)
+            allPaths += count(t, visited, currentList)
             currentList.remove(currentList.lastIndexOf(t))
           }
         }
 
-        visited.remove(s)
-      }
+        if (visited.contains(s))
+          visited(s) = Math.max(visited(s) - 1, 0)
 
-      ()
+        allPaths
+      }
     }
   }
 
@@ -70,8 +53,7 @@ object Day12 extends App {
   }
 
   def solve(graph: Graph): Int = {
-    graph.count("start", mutable.Set.empty, ListBuffer("start"))
-    1
+    graph.count("start", mutable.Map.empty, ListBuffer("start"))
   }
 
   val input = scala.io.Source
