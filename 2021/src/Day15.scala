@@ -63,8 +63,24 @@ object Day15 extends App {
     graph
   }
 
-  val input = scala.io.Source.fromFile("inputs/day15").mkString.split('\n').map(_.strip.map(_.asDigit).toArray)
-  val graph = toGraph(input)
+  def reproduce(input: Array[Array[Int]], factor: Int): Array[Array[Int]] = {
+    val biggerInput = Array.fill(input.length * factor) { Array.fill(input(0).length * factor) { 0 } }
 
+    for (i <- 0 until input.length) {
+      for (j <- 0 until input(i).length) {
+        for (k <- 0 until factor) {
+          for (l <- 0 until factor) {
+            biggerInput(i + k * input.length)(j + l * input(i).length) = ((input(i)(j) - 1) + k + l) % 9 + 1
+          }
+        }
+      }
+    }
+    biggerInput
+  }
+
+  val input = scala.io.Source.fromFile("inputs/day15").mkString.split('\n').map(_.strip.map(_.asDigit).toArray)
+  val graph = toGraph(reproduce(input, 5))
+
+  // println(graph.dijkstra((0, 0)))
   println(graph.dijkstra((0, 0)))
 }
