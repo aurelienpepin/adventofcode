@@ -1,9 +1,10 @@
 import scala.collection.immutable.Nil.:::
 
 object Day16 extends App {
-  val toBinInput: (String) => String = _.flatMap(toBin)
-
   val toInt: (String) => Int = word => Integer.parseInt(word, 2)
+  val toBigInt: (String) => BigInt = word => BigInt(word, 2)
+
+  val toBinInput: (String) => String = _.flatMap(toBin)
   val toBin: (Char) => String = (c) =>
     String
       .format(
@@ -19,17 +20,14 @@ object Day16 extends App {
   val typeId: (String) => Int = (i) => toInt(i.drop(3).take(3))
 
   // For version 4 (literal value)
-  val literalValue: (String) => (Int, Int) = (i) => {
+  val literalValue: (String) => (BigInt, Int) = (i) => {
     val groups = i.drop(6).grouped(5).filter(_.length == 5).toList
     val goodGroups = groups.takeWhile(_.head == '1') ++ groups.dropWhile(_.head == '1').take(1).toList
 
-    // val value = toInt(goodGroups.flatMap(_.drop(1)).mkString)
+    val value = toBigInt(goodGroups.flatMap(_.drop(1)).mkString)
     val nonPaddedLength = 6 + goodGroups.length * 5
 
-    // val rem = (nonPaddedLength + 4) % 4
-    // val length = if (rem == 0) nonPaddedLength else nonPaddedLength + 4 - rem
-
-    (0, nonPaddedLength)
+    (value, nonPaddedLength)
   }
 
   // For version != 4 (operator)
@@ -42,52 +40,53 @@ object Day16 extends App {
     (i.drop(7).drop(if (lengthTypeId == 0) 15 else 11), marker)
   }
 
-  def solve(input: String): Int = {
-    1
-    // literalValue(toBinInput(input))
+  def apply(code: Int, values: Array[BigInt]): BigInt = {
+    code match {
+      case 0 => values.sum
+      case 1 => values.product
+      case 2 => values.min
+      case 3 => values.max
+      case 5 => if (values(0) > values(1)) 1 else 0
+      case 6 => if (values(0) < values(1)) 1 else 0
+      case 7 => if (values(0) == values(1)) 1 else 0
+    }
   }
 
-  def packetValue(input: String): (Int, Int, Int) = {
+  def packetValue(input: String): (BigInt, Int, Int) = {
     typeId(input) match {
       case 4 => {
-        // println(s"v${version(input)} literal value: " + input)
         val (a, b) = literalValue(input)
         (a, b, version(input))
       }
-      case _ => {
+      case t => {
         val lti = lengthTypeId(input)
+        val shift = 7 + (if (lti == 0) 15 else 11)
         val (sps, marker) = subpackets(input, lti)
-        println(s"v${version(input)} operator $lti $marker:\t" + input)
+
+        var values = Array.empty[BigInt]
+        var beginning = 0
+        var totalV = 0
+
         lti match {
           case 0 => {
-            var sum = 0
-            var beginning = 0
-            var totalV = 0
-
             while (marker - beginning >= 11) {
-              println("--- now solving with beginning: " + beginning + " " + sps)
               val (a, b, partialV) = packetValue(sps.drop(beginning))
-              println("case0: " + b)
-              sum += a
+
+              values = values.appended(a)
               beginning += b
               totalV += partialV
             }
-            (sum, marker + 7 + (if (lti == 0) 15 else 11), totalV + version(input))
+            (apply(t, values), marker + shift, totalV + version(input))
           }
           case 1 => {
-            var sum = 0
-            var beginning = 0
-            var totalV = 0
-
             for (k <- 1 to marker) {
-              println("--- now solving with beginning: " + beginning + " " + sps)
               val (a, b, partialV) = packetValue(sps.drop(beginning))
-              println("case1: " + b)
-              sum += a
+
+              values = values.appended(a)
               beginning += b
               totalV += partialV
             }
-            (sum, beginning + 7 + (if (lti == 0) 15 else 11), totalV + version(input))
+            (apply(t, values), beginning + shift, totalV + version(input))
           }
         }
       }
@@ -95,5 +94,7 @@ object Day16 extends App {
   }
 
   val input = scala.io.Source.fromFile("inputs/day16").mkString
-  println(packetValue(toBinInput(input))._3)
+
+  // println(packetValue(toBinInput(input))._3)
+  println(packetValue(toBinInput(input))._1)
 }
