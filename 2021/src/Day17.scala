@@ -18,11 +18,12 @@ object Day17 extends App {
   val minTargetY = -248
   val maxTargetY = -194
 
-  var highestY = Double.MinValue
+  var highestY = Int.MinValue
+  var ins = Set.empty[(Int, Int)]
 
   for (vx0 <- allValidVx0(minTargetX, maxTargetX)) {
     // println(vx0)
-    for (vy0 <- 0 to 1000) {
+    for (vy0 <- -300 to 300) {
       // println(vx0 + " " + vy0)
       var x = 0
       var y = 0
@@ -46,15 +47,17 @@ object Day17 extends App {
           if (
             minTargetX <= x && x <= maxTargetX
             && minTargetY <= y && y <= maxTargetY
-            && currentHighestY > highestY
           ) {
-            highestY = currentHighestY
-            println(vx0 + " " + vy0 + " " + highestY)
+            ins += (vx0, vy0)
+            if (currentHighestY > highestY) {
+              highestY = currentHighestY
+              println(vx0 + " " + vy0 + " " + highestY)
+            }
           }
         }
       }
     }
   }
 
-  println(highestY)
+  println(ins.size)
 }
