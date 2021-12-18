@@ -1,20 +1,6 @@
 import scala.collection.mutable.Stack
 
 object Day18 extends App {
-//  sealed trait Snail {
-//    def magnitude(): Int
-//  }
-//
-//  case class Pair(a: Snail, b: Snail) extends Snail {
-//    override def magnitude(): Int = 3 * a.magnitude() + 2 * b.magnitude()
-//  }
-//  case class Value(v: Int) extends Snail {
-//    override def magnitude(): Int = v
-//  }
-
-  // sealed trait Tree {}
-  // class Leaf(v: Int) extends Tree
-  // class Node(left: Tree, right: Tree) extends Tree
   sealed trait Operation
   case object OP_EXPLODE extends Operation
   case object OP_SPLIT extends Operation
@@ -79,7 +65,7 @@ object Day18 extends App {
       current = stack.pop()
 
       // PROCESS NODE
-      println(">>>> " + current.depth + " " + current + " " + forwardForRight) // + "\t" + stack)
+      // println(">>>> " + current.depth + " " + current + " " + forwardForRight) // + "\t" + stack)
       // parent = getParent(root, current)
       if (!forwardForRight.isEmpty && !current.isPair()) { //} && forwardForRight.get._2 != getParent(root, current).get._1) {
         println("@ forwardForRight " + forwardForRight.get._2)
@@ -103,8 +89,6 @@ object Day18 extends App {
           case Right() => parent._1.right = newValue
         }
         current = newValue
-        println("* Verif: " + root)
-        // exploded = true
       } else if (forcedOperation == OP_SPLIT && forwardForRight.isEmpty && shouldSplit(current)) {
         println("§ shouldSplit")
         val number = current.v.get
@@ -119,15 +103,11 @@ object Day18 extends App {
         return true
       }
 
-//      println(current.v.getOrElse("pair"))
-//      println("depth: " + depth)
       if (!current.isPair()) {
         prevPrevRegular = prevRegular
         prevRegular = current
       }
 
-      //if (current.right != null)
-      //parent = (current, Right())
       current = current.right
     }
 
@@ -135,8 +115,6 @@ object Day18 extends App {
   }
 
   def inorderFirstOperation(root: Node): Operation = {
-    println("~~ [New inorder first action] ~~")
-
     val stack = Stack.empty[Node]
     var current: Node = root
 
@@ -203,6 +181,7 @@ object Day18 extends App {
     }
 
     increaseDepth(a)
+    increaseDepth(b)
     new Node(None, a, b, 0)
   }
 
@@ -212,43 +191,33 @@ object Day18 extends App {
     input.tail
       .foldLeft(tree)((reducedTree, line) => {
         println("-- NEW TREE --")
-        var newTree = toTree(line, 1)
+        var newTree = toTree(line, 0)
         var treeToReduce = addTrees(reducedTree, newTree)
         while (inorder(treeToReduce)) {
           println(treeToReduce)
         }
 
-        println("§§§§§§§§§ " + treeToReduce)
         treeToReduce
       })
       .magnitude()
   }
 
-  // println(toTree("[[[[3,9],[0,5]],[4,6]],3]"))
-//
+  def solve2(input: Array[String]): BigInt = {
+    input
+      .combinations(2)
+      .toArray
+      .map { case Array(x, y) => (x, y) }
+      .map((a: String, b: String) => {
+        val treeToReduce = addTrees(toTree(a, 0), toTree(b, 0))
+        while (inorder(treeToReduce)) {}
+
+        treeToReduce.magnitude()
+      })
+      .max
+  }
+
   val input = scala.io.Source.fromFile("inputs/day18").mkString.split('\n')
-  println(solve(input))
-//  for (line <- input) {
-//    if (toTree(line).toString != line) {
-//      println("ERROR: " + line)
-//    }
-//  }
-//  val tree = toTree("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]", 0)
-//  println(inorder(tree))
-//  println(tree)
-//  println("----------")
-//  println(inorder(tree))
-//  println(tree)
-//  println("----------")
-//  println(inorder(tree))
-//  println(tree)
-//  println("----------")
-//  println(inorder(tree))
-//  println(tree)
-//  println("----------")
-//  println(inorder(tree))
-//  println(tree)
-//  println("----------")
-//  println(inorder(tree))
-//  println(tree)
+
+  // println(solve(input))
+  println(solve2(input))
 }
