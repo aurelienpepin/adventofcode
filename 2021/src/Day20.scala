@@ -47,11 +47,31 @@ object Day20 extends App {
 
   def solve(code: String, input: Array[String]): Int = {
     val image = mutable.Map.empty[(Int, Int), Char]
-
     (0 to input.length - 1).foreach(x => (0 to input(x).length - 1).foreach(y => image += ((x, y) -> input(x)(y))))
+
     val (newImage, dims, deadPixel) = step(image, Dimensions(0, input.length - 1, 0, input(0).length - 1), '.')
     val (newImage2, _, _) = step(newImage, dims, deadPixel)
     newImage2.values.filter(_ == '#').size
+  }
+
+  def solve2(input: Array[String], steps: Int): Int = {
+    var image = mutable.Map.empty[(Int, Int), Char]
+    var dimensions = Dimensions(0, input.length - 1, 0, input(0).length - 1)
+    var deadPixel = '.'
+
+    (dimensions.minX to dimensions.maxX).foreach(x =>
+      (dimensions.minY to dimensions.maxY).foreach(y => image += ((x, y) -> input(x)(y)))
+    )
+
+    for (i <- 1 to steps) {
+      println(i)
+      val result = step(image, dimensions, deadPixel)
+      image = result._1
+      dimensions = result._2
+      deadPixel = result._3
+    }
+
+    image.values.filter(_ == '#').size
   }
 
   val Array(code, input) = scala.io.Source
@@ -62,5 +82,6 @@ object Day20 extends App {
 
   val image = input.split("\n")
 
-  println(solve(code, image))
+  // println(solve(code, image))
+  println(solve2(image, 50))
 }
