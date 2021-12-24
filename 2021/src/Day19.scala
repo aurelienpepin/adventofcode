@@ -39,26 +39,26 @@ object Day19 extends App {
     allTransformations.toArray
   }
 
-  def dist(first: RelBeacon, second: RelBeacon): Int = {
+  def dist(first: RelBeacon, second: RelBeacon): Int =
     Math.abs(first.x - second.x) + Math.abs(first.y - second.y) + Math.abs(first.z - second.z)
-  }
 
-  def distFrom(source: RelBeacon, others: Array[RelBeacon]): Array[Int] = {
+  def distFrom(source: RelBeacon, others: Array[RelBeacon]): Array[Int] =
     others.filter(_ != source).map(dist(source, _)).sorted
-  }
 
-  def toRelBeacons(input: Array[String]): Set[RelBeacon] = {
+  def toRelBeacons(input: Array[String]): Set[RelBeacon] =
     input.tail.map(_.split(',')).map { case Array(x, y, z) => RelBeacon(x.toInt, y.toInt, z.toInt) }.toSet
-  }
 
   def allOrigins(bS1: RelBeacon, bS2: RelBeacon): Array[(Int, Int, Int)] = Array(
     (bS1.x - bS2.x, bS1.y - bS2.y, bS1.z - bS2.z)
   )
 
-  def step(beaconsByScanner: Array[Set[RelBeacon]]): Array[Set[RelBeacon]] = {
+  def step(input: (Array[Set[RelBeacon]], Array[Set[RelBeacon]])): (Array[Set[RelBeacon]], Array[Set[RelBeacon]]) = {
     println("==============================")
+    val beaconsByScanner = input._1
+    val scannersByScanner = input._2
+
     if (beaconsByScanner.length == 1)
-      return beaconsByScanner
+      return (beaconsByScanner, scannersByScanner)
 
     var beaconDistances: Array[(Int, RelBeacon, Array[Int])] =
       beaconsByScanner.zipWithIndex.flatMap((beacons: Set[RelBeacon], i: Int) => {
@@ -70,7 +70,7 @@ object Day19 extends App {
       .map { case Array(b1, b2) => (b1, b2) }
       .filter { case (b1, b2) => b1._1 < b2._1 }
       .map { case (b1, b2) => (b1._1, b1._2, b2._1, b2._2, b1._3.intersect(b2._3)) }
-      .filter { case (s1, b1, s2, b2, intersection) => intersection.length >= 12 }
+      // .filter { case (s1, b1, s2, b2, intersection) => intersection.length >= 12 }
       .toArray
       .sortBy(-_._5.length)
 
@@ -150,6 +150,19 @@ object Day19 extends App {
       }
     }
 
+    val allTranslatedS2Scanners = Array(relOrigin) ++ scannersByScanner(s2).map {
+      case RelBeacon(x, y, z) => {
+        val transformedBeacon = transformation.apply(RelBeacon(x, y, z))
+
+        RelBeacon(
+          transformedBeacon.x + relOrigin.x,
+          transformedBeacon.y + relOrigin.y,
+          transformedBeacon.z + relOrigin.z
+        )
+      }
+    }
+
+    println("REL ORIGIN " + s2 + " " + relOrigin)
     val mergedBeacons = beaconsByScanner.zipWithIndex.flatMap { (bs, i) =>
       {
         if (i == s2) {
@@ -162,19 +175,36 @@ object Day19 extends App {
       }
     }
 
+    val mergedScanners = scannersByScanner.zipWithIndex.flatMap { (ss, i) =>
+      {
+        if (i == s2) {
+          None
+        } else if (i == s1) {
+          Some(ss ++ allTranslatedS2Scanners)
+        } else {
+          Some(ss)
+        }
+      }
+    }
+
     println("How many scanners left: " + mergedBeacons.size)
-    mergedBeacons
+    (mergedBeacons, mergedScanners)
   }
 
   def solve(input: Array[Set[RelBeacon]]): Int = {
     var scanners = Int.MaxValue
+    var scannersByScanner: Array[Set[RelBeacon]] = Array.fill(input.length)(Set.empty)
     var beaconsByScanner = input
 
     while (scanners > 1) {
       scanners = beaconsByScanner.length
-      beaconsByScanner = step(beaconsByScanner)
+      val (newBeacons, newScannersByScanner) = step((beaconsByScanner, scannersByScanner))
+
+      beaconsByScanner = newBeacons
+      scannersByScanner = newScannersByScanner
     }
 
+    println(scannersByScanner(0).toArray.combinations(2).map { case Array(a, b) => dist(a, b) }.max)
     println(beaconsByScanner(0).size)
     scanners
   }
